@@ -289,7 +289,10 @@ export default function App() {
           {/* Stats */}
           <motion.div
             initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.9, duration:0.8 }}
-            style={{ position:"absolute", bottom:"2.5rem", left:"calc(max(2.5rem,50vw - 680px))", right:"4rem", display:"flex", gap:"2.5rem", paddingTop:"1.5rem", borderTop:`1px solid ${C.peachDeep}` }}
+            style={ isMobile
+              ? { position:"relative", display:"flex", gap:"1.5rem", flexWrap:"wrap", paddingTop:"1.5rem", marginTop:"2rem", borderTop:`1px solid ${C.peachDeep}` }
+              : { position:"absolute", bottom:"2.5rem", left:"calc(max(2.5rem,50vw - 680px))", right:"4rem", display:"flex", gap:"2.5rem", paddingTop:"1.5rem", borderTop:`1px solid ${C.peachDeep}` }
+            }
           >
             {[["+ 500","clientes felices"],["100%","artesanal"],["5 ★","calificación"]].map(([n,l]) => (
               <div key={l}>
