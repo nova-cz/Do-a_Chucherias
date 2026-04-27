@@ -166,14 +166,19 @@ export default function App() {
   const [scrolled, setScrolled]         = useState(false);
   const [ctaMsg, setCtaMsg]             = useState("");
   const [activeOccasion, setActiveOccasion] = useState<typeof OCCASIONS[0] | null>(null);
+  const [winW, setWinW]                 = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  const isMobile = winW < 768;
+  const isTablet = winW < 1024;
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset:["start start","end start"] });
   const imgY = useTransform(scrollYProgress, [0,1], ["0%","18%"]);
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onResize = () => setWinW(window.innerWidth);
+    window.addEventListener("scroll", onScroll);
+    window.addEventListener("resize", onResize);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); };
   }, []);
 
   const sendWa = () => {
@@ -197,7 +202,7 @@ export default function App() {
           boxShadow: scrolled ? "0 2px 40px rgba(42,21,24,0.07)" : "none",
         }}
       >
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem", height:72, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1rem" : "0 2.5rem", height: isMobile ? 60 : 72, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           {/* Logo */}
           <motion.a href="#inicio" whileHover={{ opacity:0.75 }} style={{ textDecoration:"none", lineHeight:1 }}>
             <div style={{ fontFamily:serif, fontSize:"1.3rem", fontStyle:"italic", letterSpacing:"-0.01em", color:C.rose }}>Doña Chucherías</div>
@@ -205,7 +210,7 @@ export default function App() {
           </motion.a>
 
           {/* Links desktop */}
-          <nav style={{ display:"flex", gap:"2rem", alignItems:"center" }}>
+          {!isMobile && <nav style={{ display:"flex", gap:"1.5rem", alignItems:"center" }}>
             {NAV_LINKS.map((l, i) => (
               <motion.a key={l}
                 href={`#${l.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}`}
@@ -222,10 +227,12 @@ export default function App() {
             style={{ fontFamily:sans, fontSize:"0.52rem", letterSpacing:"0.16em", textTransform:"uppercase", color:C.white, backgroundColor:C.rose, padding:"0.65rem 1.5rem", textDecoration:"none", display:"flex", alignItems:"center", gap:7, borderRadius:100, boxShadow:"0 3px 14px rgba(218,99,122,0.28)" }}
           ><MessageCircle size={12} strokeWidth={2} /> WhatsApp</motion.a>
 
-          {/* Mobile toggle */}
-          <button onClick={() => setMenuOpen(p => !p)}
-            style={{ display:"none", background:"none", border:"none", cursor:"pointer", color:C.ink, padding:4 }} className="mobile-menu-btn"
-          >{menuOpen ? <X size={22} strokeWidth={1.5}/> : <Menu size={22} strokeWidth={1.5}/>}</button>
+          {isMobile && (
+            <button onClick={() => setMenuOpen(p => !p)}
+              style={{ background:"none", border:"none", cursor:"pointer", color:C.ink, padding:4, display:"flex" }}
+            >{menuOpen ? <X size={22} strokeWidth={1.5}/> : <Menu size={22} strokeWidth={1.5}/>}</button>
+          )}
+          </div>
         </div>
       </motion.nav>
 
@@ -249,9 +256,9 @@ export default function App() {
       </AnimatePresence>
 
       {/* ══ HERO ══ */}
-      <section ref={heroRef} id="inicio" style={{ height:"100vh", minHeight:680, display:"grid", gridTemplateColumns:"52% 48%", overflow:"hidden", paddingTop:72 }}>
+      <section ref={heroRef} id="inicio" style={{ minHeight: isMobile ? "auto" : "100vh", display:"grid", gridTemplateColumns: isMobile ? "1fr" : "52% 48%", overflow:"hidden", paddingTop: isMobile ? 60 : 72 }}>
         {/* Texto */}
-        <div style={{ display:"flex", flexDirection:"column", justifyContent:"center", padding:"4rem 4rem 4rem calc(max(2.5rem, 50vw - 680px))", backgroundColor:C.peach, position:"relative" }}>
+        <div style={{ display:"flex", flexDirection:"column", justifyContent:"center", padding: isMobile ? "2.5rem 1.5rem 2rem" : "4rem 4rem 4rem calc(max(2.5rem, 50vw - 680px))", backgroundColor:C.peach, position:"relative" }}>
           <motion.div initial={{ opacity:0, y:32 }} animate={{ opacity:1, y:0 }} transition={{ duration:1.1, ease:[0.22,1,0.36,1] }}>
             {/* Label */}
             <div style={{ display:"inline-flex", alignItems:"center", gap:10, marginBottom:"2.25rem", backgroundColor:C.roseLight, padding:"6px 16px", borderRadius:100 }}>
@@ -295,7 +302,7 @@ export default function App() {
         </div>
 
         {/* Imagen parallax */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:1.4 }} style={{ position:"relative", overflow:"hidden" }}>
+        {!isMobile && <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:1.4 }} style={{ position:"relative", overflow:"hidden" }}>
           <motion.img
             src="/productos/21.jpeg"
             alt="Tabla artesanal Doña Chucherías"
@@ -303,12 +310,12 @@ export default function App() {
           />
           {/* soft fade from peach */}
           <div style={{ position:"absolute", inset:0, background:`linear-gradient(to right, ${C.peach} 0%, ${C.peach}60 8%, transparent 28%)` }} />
-        </motion.div>
+        </motion.div>}
       </section>
 
       {/* ══ PRODUCTOS ══ */}
-      <section id="productos" style={{ backgroundColor:C.white, padding:"9rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem" }}>
+      <section id="productos" style={{ backgroundColor:C.white, padding: isMobile ? "4rem 0" : "9rem 0" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem" }}>
           {/* Header */}
           <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginBottom:"4rem", paddingBottom:"2.25rem", borderBottom:`1px solid ${C.borderLight}` }}>
             <div>
@@ -327,7 +334,7 @@ export default function App() {
           </div>
 
           {/* Grid de productos — 3 columnas */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:"1.5rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap:"1.25rem" }}>
             {PRODUCTS.map((p, i) => (
               <motion.div key={p.id}
                 initial={{ opacity:0, y:28 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
@@ -341,9 +348,9 @@ export default function App() {
       </section>
 
       {/* ══ OCASIONES ══ */}
-      <section id="ocasiones" style={{ backgroundColor:C.peach, padding:"9rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"5fr 7fr", gap:"6rem", alignItems:"start" }}>
+      <section id="ocasiones" style={{ backgroundColor:C.peach, padding: isMobile ? "4rem 0" : "9rem 0" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "5fr 7fr", gap: isMobile ? "2rem" : "6rem", alignItems:"start" }}>
             {/* Izquierda sticky */}
             <div style={{ position:"sticky", top:110 }}>
               <SectionTag>Para cada ocasión</SectionTag>
@@ -394,8 +401,8 @@ export default function App() {
       </section>
 
       {/* ══ GALERÍA ══ */}
-      <section id="galeria" style={{ backgroundColor:C.white, padding:"9rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem" }}>
+      <section id="galeria" style={{ backgroundColor:C.white, padding: isMobile ? "4rem 0" : "9rem 0" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"3.5rem", paddingBottom:"2rem", borderBottom:`1px solid ${C.borderLight}` }}>
             <div>
               <SectionTag>Galería</SectionTag>
@@ -411,7 +418,7 @@ export default function App() {
           </div>
 
           {/* Grid galería — 3 columnas, todas las fotos */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:6 }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 4 : 6 }}>
             {GALLERY.map((src, i) => (
               <motion.div key={i}
                 initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
@@ -429,8 +436,8 @@ export default function App() {
       </section>
 
       {/* ══ ENVÍOS ══ */}
-      <section id="envios" style={{ backgroundColor:C.offwhite, padding:"9rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem" }}>
+      <section id="envios" style={{ backgroundColor:C.offwhite, padding: isMobile ? "4rem 0" : "9rem 0" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem" }}>
           <div style={{ textAlign:"center", maxWidth:540, margin:"0 auto 5rem" }}>
             <SectionTag>Información importante</SectionTag>
             <motion.h2
@@ -445,7 +452,7 @@ export default function App() {
             </p>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.5rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap:"1.25rem" }}>
             {[
               { Icon:Home, title:"Recolección en domicilio", body:"Puedes recoger tu pedido directamente en nuestro domicilio sin costo extra.", notes:[] },
               { Icon:Truck, title:"Envío Doña Chucherías", body:"Contamos con servicio de mensajería dentro de CDMX y Edo. Mex. Cotiza tu envío.", notes:[{type:"info",text:"Solicitar con 24 hrs de anticipación"}] },
@@ -476,7 +483,7 @@ export default function App() {
       </section>
 
       {/* ══ PRECIOS ══ */}
-      <section id="precios" style={{ backgroundColor:C.white, padding:"9rem 0" }}>
+      <section id="precios" style={{ backgroundColor:C.white, padding: isMobile ? "4rem 0" : "9rem 0" }}>
         <div style={{ maxWidth:880, margin:"0 auto", padding:"0 2.5rem" }}>
           <div style={{ textAlign:"center", marginBottom:"4rem" }}>
             <SectionTag>Inversión</SectionTag>
@@ -528,7 +535,7 @@ export default function App() {
               style={{ fontFamily:serif, fontStyle:"italic", fontWeight:"normal", fontSize:"clamp(1.6rem,2.5vw,2.2rem)", color:C.ink, textAlign:"center", marginBottom:"0.4rem", letterSpacing:"-0.02em" }}
             >Formas de Pago</motion.h3>
             <p style={{ fontFamily:sans, fontSize:"0.84rem", color:C.inkSoft, textAlign:"center", marginBottom:"2.5rem", fontWeight:300 }}>Facilitamos tu compra con diversas opciones</p>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.25rem" }}>
+            <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap:"1rem" }}>
               {[
                 { Icon:Building2, title:"Transferencia Bancaria", detail:"Banco BBVA" },
                 { Icon:Banknote,  title:"Efectivo",               detail:"" },
@@ -584,8 +591,8 @@ export default function App() {
       </section>
 
       {/* ══ CONTACTO ══ */}
-      <section id="contacto" style={{ backgroundColor:C.offwhite, padding:"9rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem", display:"grid", gridTemplateColumns:"1fr 1fr", gap:"6rem", alignItems:"start" }}>
+      <section id="contacto" style={{ backgroundColor:C.offwhite, padding: isMobile ? "4rem 0" : "9rem 0" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem", display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? "2.5rem" : "6rem", alignItems:"start" }}>
           <motion.div initial={{ opacity:0, x:-32 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ duration:0.7 }}>
             <SectionTag>Contacto</SectionTag>
             <h2 style={{ fontFamily:serif, fontStyle:"italic", fontWeight:"normal", fontSize:"clamp(2rem,3vw,3.2rem)", color:C.ink, marginBottom:"2.5rem", letterSpacing:"-0.03em", lineHeight:1.1 }}>
@@ -639,7 +646,7 @@ export default function App() {
 
       {/* ══ FOOTER ══ */}
       <footer style={{ backgroundColor:C.peach, borderTop:`1px solid ${C.border}`, padding:"2.5rem 0" }}>
-        <div style={{ maxWidth:1360, margin:"0 auto", padding:"0 2.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"1rem" }}>
+        <div style={{ maxWidth:1360, margin:"0 auto", padding: isMobile ? "0 1.25rem" : "0 2.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"1rem" }}>
           <div>
             <p style={{ fontFamily:serif, fontStyle:"italic", fontSize:"1.1rem", color:C.rose, margin:"0 0 4px" }}>Doña Chucherías</p>
             <p style={{ fontFamily:sans, fontSize:"0.72rem", color:C.inkSoft, margin:0, fontWeight:300 }}>Tablas & Regalos Gourmet · Hecho con amor en CDMX.</p>
