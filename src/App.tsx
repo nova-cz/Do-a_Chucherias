@@ -219,20 +219,19 @@ export default function App() {
                 whileHover={{ color:C.rose }}
               >{l}</motion.a>
             ))}
-          </nav>
+          </nav>}
 
           {/* WhatsApp CTA */}
-          <motion.a href={waUrl} target="_blank" rel="noopener noreferrer"
+          {!isMobile && <motion.a href={waUrl} target="_blank" rel="noopener noreferrer"
             whileHover={{ scale:1.03, boxShadow:"0 8px 24px rgba(218,99,122,0.35)" }} whileTap={{ scale:0.96 }}
             style={{ fontFamily:sans, fontSize:"0.52rem", letterSpacing:"0.16em", textTransform:"uppercase", color:C.white, backgroundColor:C.rose, padding:"0.65rem 1.5rem", textDecoration:"none", display:"flex", alignItems:"center", gap:7, borderRadius:100, boxShadow:"0 3px 14px rgba(218,99,122,0.28)" }}
-          ><MessageCircle size={12} strokeWidth={2} /> WhatsApp</motion.a>
+          ><MessageCircle size={12} strokeWidth={2} /> WhatsApp</motion.a>}
 
           {isMobile && (
             <button onClick={() => setMenuOpen(p => !p)}
               style={{ background:"none", border:"none", cursor:"pointer", color:C.ink, padding:4, display:"flex" }}
             >{menuOpen ? <X size={22} strokeWidth={1.5}/> : <Menu size={22} strokeWidth={1.5}/>}</button>
           )}
-          </div>
         </div>
       </motion.nav>
 
